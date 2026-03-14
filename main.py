@@ -5,10 +5,9 @@ import json
 
 app = FastAPI()
 
-# Add CORS middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the actual frontend URL
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -19,10 +18,6 @@ def read_root():
     return {'Ping': 'Pong'}
 
 def is_dag(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> bool:
-    """
-    Check if the graph is a Directed Acyclic Graph (DAG).
-    """
-    # Build adjacency list
     adj = {node['id']: [] for node in nodes}
     for edge in edges:
         source = edge['source']
@@ -57,10 +52,6 @@ def is_dag(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> bool:
 
 @app.post('/pipelines/parse')
 def parse_pipeline(nodes: str = Form(...), edges: str = Form(...)):
-    """
-    Endpoint to receive pipeline data and return summary.
-    Expected format: nodes and edges as JSON strings from Form data.
-    """
     nodes_list = json.loads(nodes)
     edges_list = json.loads(edges)
     
