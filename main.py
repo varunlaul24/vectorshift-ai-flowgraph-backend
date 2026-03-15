@@ -18,7 +18,9 @@ def read_root():
     return {'Ping': 'Pong'}
 
 def is_dag(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> bool:
+    # Adjacency List
     adj = {node['id']: [] for node in nodes}
+    # Adding Edges
     for edge in edges:
         source = edge['source']
         target = edge['target']
@@ -28,6 +30,7 @@ def is_dag(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> bool:
     visited = set()
     rec_stack = set()
 
+    # Depth First Search
     def has_cycle(v):
         visited.add(v)
         rec_stack.add(v)
@@ -52,16 +55,23 @@ def is_dag(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> bool:
 
 @app.post('/pipelines/parse')
 def parse_pipeline(nodes: str = Form(...), edges: str = Form(...)):
-    nodes_list = json.loads(nodes)
-    edges_list = json.loads(edges)
-    
-    num_nodes = len(nodes_list)
-    num_edges = len(edges_list)
-    dag_status = is_dag(nodes_list, edges_list)
-    
-    return {
-        'num_nodes': num_nodes,
-        'num_edges': num_edges,
-        'is_dag': dag_status
-    }
+    try:
+        nodes_list = json.loads(nodes)
+        edges_list = json.loads(edges)
+        
+        num_nodes = len(nodes_list)
+        num_edges = len(edges_list)
+        dag_status = is_dag(nodes_list, edges_list)
+        
+        return {
+            'num_nodes': num_nodes,
+            'num_edges': num_edges,
+            'is_dag': dag_status
+        }
+    except json.JSONDecodeError:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Invalid JSON format for nodes or edges")
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
 
